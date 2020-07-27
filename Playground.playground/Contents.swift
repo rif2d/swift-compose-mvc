@@ -34,10 +34,20 @@ class ViewController: UIViewController {
     }
 
     @objc private func buttonDidTap(_ sender: UIButton) {
-        print("TAPPED")
+        if textField.text?.count == 0 {
+            label.text = "Empty message"
+            label.textColor = .red
+
+            return
+        }
+
+        sendMessage(message: textField.text!)
     }
 
-    // TODO: Implement sending method
+    // TODO: Add result callback
+    private func sendMessage(message: String) {
+        print("Message sent")
+    }
 }
 
 let vc = ViewController()
