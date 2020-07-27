@@ -20,6 +20,7 @@ class ViewController: UIViewController {
         button = UIButton()
         button.setTitle("Send", for: .normal)
         button.setTitleColor(.blue, for: .normal)
+        button.addTarget(self, action: #selector(buttonDidTap), for: .touchUpInside)
 
         label = UILabel()
         label.text = "Status"
@@ -32,7 +33,10 @@ class ViewController: UIViewController {
         self.view = view
     }
 
-    // TODO: Implement button action
+    @objc private func buttonDidTap(_ sender: UIButton) {
+        print("TAPPED")
+    }
+
     // TODO: Implement sending method
 }
 
