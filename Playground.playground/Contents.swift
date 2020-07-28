@@ -4,12 +4,18 @@ import PlaygroundSupport
 // MARK: - View Controller
 // Notice the View Controller only responsible for nothing but managing view
 
+protocol ViewControllerDelegate where Self: AnyObject {
+    func viewController(_ viewController: ViewController, message: String)
+}
+
 class ViewController: UIViewController {
     // MARK: - Views
     private var textField: UITextField!
     private var button: UIButton!
     private var label: UILabel!
 
+    // MARK: Delegate
+    weak var delegate: ViewControllerDelegate?
 
     // MARK: State
     enum State {
@@ -72,7 +78,7 @@ class ViewController: UIViewController {
     }
 
     @objc private func buttonDidTap(_ sender: UIButton) {
-        // TODO: Use delegation to offload model layer stuff from this "View" Controller
+        delegate?.viewController(self, message: textField.text!)
     }
 }
 
@@ -108,7 +114,44 @@ class MessageValidation {
     }
 }
 
-let vc = ViewController()
+
+// MARK: - Controller
+// Controller orchestrates the "View" and "Model"
+
+class Controller: ViewControllerDelegate {
+    let viewController: ViewController
+    let validator: MessageValidation
+    let networking: MessageNetworking
+
+    init() {
+        viewController = ViewController()
+        validator = MessageValidation()
+        networking = MessageNetworking()
+
+        viewController.delegate = self
+    }
+
+    func viewController(_ viewController: ViewController, message: String) {
+        if let error = validator.validate(message: message) {
+            viewController.state = .error(error)
+            return
+        }
+
+        networking.sendMessage(message: message) { result in
+            switch result {
+            case let .success(response):
+                viewController.state = .success(response)
+            case let .failure(error):
+                viewController.state = .error(error)
+            }
+        }
+    }
+}
+
+
+// MARK: - Playground thingy
+let controller = Controller()
+let vc = controller.viewController
 vc.preferredContentSize = CGSize(width: 300, height: 300)
 
 PlaygroundPage.current.setLiveView(vc)
