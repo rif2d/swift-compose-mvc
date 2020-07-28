@@ -1,6 +1,9 @@
 import UIKit
 import PlaygroundSupport
 
+// MARK: - View Controller
+// Notice the View Controller only responsible for nothing but managing view
+
 class ViewController: UIViewController {
     // MARK: - Views
     private var textField: UITextField!
@@ -68,39 +71,40 @@ class ViewController: UIViewController {
         updateState()
     }
 
-
-    // MARK: - Model Layer
-    enum ValidationError: Error {
-        case emptyMessage
-    }
-    
     @objc private func buttonDidTap(_ sender: UIButton) {
-        if textField.text?.count == 0 {
-            self.state = .error(ValidationError.emptyMessage)
-            return
-        }
-
-        sendMessage(message: textField.text!) { result in
-            switch result {
-            case let .success(response):
-                self.state = .success(response)
-            case let .failure(error):
-                self.state = .error(error)
-            }
-        }
+        // TODO: Use delegation to offload model layer stuff from this "View" Controller
     }
+}
 
+
+// MARK: - Model Controller
+// Separate model layer stuff from "View" Controller
+
+class MessageNetworking {
     enum MessageNetworkingError: Error {
         case unableToSend
     }
 
-    // Gacha network call wannabe
-    private func sendMessage(message: String, callback: @escaping (Result<String, MessageNetworkingError>) -> Void) {
+    func sendMessage(message: String, callback: @escaping (Result<String, MessageNetworkingError>) -> Void) {
         if Bool.random() {
             callback(.success("Message sent"))
         } else {
             callback(.failure(.unableToSend))
         }
+    }
+}
+
+class MessageValidation {
+    enum ValidationError: Error {
+        case emptyMessage
+    }
+
+    func validate(message: String) -> ValidationError? {
+        if message.count == 0 {
+            return .emptyMessage
+        }
+
+        return nil
     }
 }
 
