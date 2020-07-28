@@ -70,11 +70,13 @@ class ViewController: UIViewController {
 
 
     // MARK: - Model Layer
+    enum ValidationError: Error {
+        case emptyMessage
+    }
+    
     @objc private func buttonDidTap(_ sender: UIButton) {
         if textField.text?.count == 0 {
-            label.text = "Empty message"
-            label.textColor = .red
-
+            self.state = .error(ValidationError.emptyMessage)
             return
         }
 
