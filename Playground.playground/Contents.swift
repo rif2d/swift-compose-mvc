@@ -34,6 +34,7 @@ class ViewController: UIViewController {
         self.view = view
     }
 
+    // MARK: - Model Layer
     @objc private func buttonDidTap(_ sender: UIButton) {
         if textField.text?.count == 0 {
             label.text = "Empty message"
@@ -42,12 +43,29 @@ class ViewController: UIViewController {
             return
         }
 
-        sendMessage(message: textField.text!)
+        sendMessage(message: textField.text!) { result in
+            switch result {
+            case let .success(response):
+                self.label.text = response
+                self.label.textColor = .green
+            case let .failure(error):
+                self.label.text = "\(error)"
+                self.label.textColor = .red
+            }
+        }
     }
 
-    // TODO: Add result callback
-    private func sendMessage(message: String) {
-        print("Message sent")
+    enum MessageNetworkingError: Error {
+        case unableToSend
+    }
+
+    // Gacha network call wannabe
+    private func sendMessage(message: String, callback: @escaping (Result<String, MessageNetworkingError>) -> Void) {
+        if Bool.random() {
+            callback(.success("Message sent"))
+        } else {
+            callback(.failure(.unableToSend))
+        }
     }
 }
 
