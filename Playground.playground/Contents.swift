@@ -7,6 +7,36 @@ class ViewController: UIViewController {
     private var button: UIButton!
     private var label: UILabel!
 
+
+    // MARK: State
+    enum State {
+        case `default`
+        case success(String)
+        case error(Error)
+    }
+    
+    var state = State.default {
+        didSet {
+            if !self.isViewLoaded { return }
+            updateState()
+        }
+    }
+
+    private func updateState() {
+        switch state {
+        case .default:
+            label.text = "Ready"
+            label.textColor = .gray
+        case let .error(error):
+            label.text = "Error: \(error)"
+            label.textColor = .red
+        case let .success(message):
+            label.text = message
+            label.textColor = .green
+        }
+    }
+
+
     // MARK: - Setup View
     override func loadView() {
         let view = UIStackView()
@@ -24,8 +54,6 @@ class ViewController: UIViewController {
         button.addTarget(self, action: #selector(buttonDidTap), for: .touchUpInside)
 
         label = UILabel()
-        label.text = "Status"
-        label.textColor = .gray
 
         view.addArrangedSubview(textField)
         view.addArrangedSubview(button)
@@ -33,6 +61,13 @@ class ViewController: UIViewController {
 
         self.view = view
     }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        updateState()
+    }
+
 
     // MARK: - Model Layer
     @objc private func buttonDidTap(_ sender: UIButton) {
@@ -46,11 +81,9 @@ class ViewController: UIViewController {
         sendMessage(message: textField.text!) { result in
             switch result {
             case let .success(response):
-                self.label.text = response
-                self.label.textColor = .green
+                self.state = .success(response)
             case let .failure(error):
-                self.label.text = "\(error)"
-                self.label.textColor = .red
+                self.state = .error(error)
             }
         }
     }
