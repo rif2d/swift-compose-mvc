@@ -19,7 +19,8 @@ class ViewController: UIViewController {
 
         button = UIButton()
         button.setTitle("Send", for: .normal)
-        button.setTitleColor(.blue, for: .normal)
+        button.setTitleColor(view.tintColor, for: .normal)
+        button.setTitleColor(.gray, for: .highlighted)
         button.addTarget(self, action: #selector(buttonDidTap), for: .touchUpInside)
 
         label = UILabel()
